@@ -1,62 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Pi Universe Code | Identify Your Frequency</title>
-    <style>
-        :root { --neon: #00ff00; --bg: #050505; }
-        body { background: var(--bg); color: white; font-family: 'Courier New', monospace; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
-        #bg-canvas { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.25; }
-        
-        .container { 
-            background: rgba(0, 0, 0, 0.9); 
-            border: 2px solid var(--neon); 
-            padding: 40px 20px; 
-            border-radius: 20px; 
-            text-align: center; 
-            width: 90%; 
-            max-width: 420px; 
-            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3); 
-            backdrop-filter: blur(5px);
+  <meta charset="UTF-8">
+  <title>Find Your DOB in Pi</title>
+  <style>
+    body { font-family: Arial; text-align: center; margin-top: 50px; }
+    input, button { padding: 10px; font-size: 16px; }
+    #result { margin-top: 20px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h2>🔍 Find Your DOB in Pi</h2>
+  <p>Enter DOB (ddmmyy) — zeros will be removed automatically</p>
+  <input type="text" id="dob" placeholder="e.g. 010203">
+  <button onclick="searchPi()">Search</button>
+
+  <div id="result"></div>
+
+  <script>
+    async function searchPi() {
+      let dob = document.getElementById('dob').value.trim();
+
+      if (!/^\d{6}$/.test(dob)) {
+        document.getElementById('result').innerText = '❌ Enter valid 6-digit DOB';
+        return;
+      }
+
+      // remove zeros
+      let query = dob.replace(/0/g, '');
+
+      if (query.length === 0) {
+        document.getElementById('result').innerText = '❌ Invalid after removing zeros';
+        return;
+      }
+
+      document.getElementById('result').innerText = '⏳ Searching...';
+
+      try {
+        let res = await fetch(`https://api.pi.delivery/v1/pi?start=0&numberOfDigits=1000000`);
+        let data = await res.json();
+
+        let piDigits = data.content;
+
+        let index = piDigits.indexOf(query);
+
+        if (index !== -1) {
+          document.getElementById('result').innerText = `✅ Found at position: ${index}`;
+        } else {
+          document.getElementById('result').innerText = '❌ Not found in first 1M digits';
         }
 
-        h1 { color: var(--neon); letter-spacing: 5px; font-size: 1.8rem; margin: 0 0 10px 0; text-shadow: 0 0 15px var(--neon); }
-        p.subtitle { color: #888; font-size: 10px; text-transform: uppercase; margin-bottom: 30px; }
-
-        .input-wrapper { margin-bottom: 25px; }
-        input { 
-            background: #000; 
-            border: 1px solid var(--neon); 
-            color: var(--neon); 
-            padding: 15px; 
-            width: 80%; 
-            font-size: 1.4rem; 
-            text-align: center; 
-            outline: none; 
-            border-radius: 10px;
-            box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.1);
-        }
-
-        button { 
-            background: var(--neon); 
-            color: black; 
-            border: none; 
-            padding: 15px 40px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            text-transform: uppercase; 
-            width: 85%; 
-            border-radius: 50px; 
-            font-size: 1rem; 
-            transition: 0.3s;
-            box-shadow: 0 0 15px var(--neon);
-        }
-        button:hover { background: white; transform: scale(1.03); box-shadow: 0 0 25px white; }
-
-        #result { margin-top: 30px; min-height: 140px; display: flex; align-items: center; justify-content: center; }
-        
-        .match-card { 
-            border: 1px dashed var(--neon); 
-            padding: 20px; 
-            width: 100%;
+      } catch (err) {
+        document.getElementById('result').innerText = '⚠️ Error fetching Pi data';
+      }
+    }
+  </script>
+</body>
+</html>

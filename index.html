@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Pi Universe Code | 100 Million Digits</title>
+    <style>
+        :root { --neon: #00ff00; --dark: #0a0a0a; }
+        body { background: var(--dark); color: white; font-family: 'Courier New', monospace; margin: 0; padding: 20px; text-align: center; }
+        .container { max-width: 600px; margin: auto; }
+        h1 { color: var(--neon); text-transform: uppercase; letter-spacing: 2px; }
+        
+        /* Progress Bar */
+        #progress-container { width: 100%; background: #222; height: 10px; border-radius: 5px; margin: 20px 0; display: block; overflow: hidden; }
+        #progress-bar { width: 0%; height: 100%; background: var(--neon); transition: width 0.1s; }
+        #status { font-size: 14px; color: #888; margin-bottom: 20px; }
+
+        /* Search Box */
+        .search-box { background: #1a1a1a; padding: 20px; border: 1px solid #333; border-radius: 10px; display: none; }
+        input { background: #000; border: 1px solid var(--neon); color: var(--neon); padding: 12px; width: 80%; font-size: 18px; margin-bottom: 10px; border-radius: 5px; outline: none; }
+        button { background: var(--neon); color: black; border: none; padding: 12px 25px; font-weight: bold; cursor: pointer; border-radius: 5px; text-transform: uppercase; }
+        button:hover { opacity: 0.8; }
+
+        /* Results */
+        #result { margin-top: 25px; line-height: 1.6; }
+        .highlight { background: white; color: black; font-weight: bold; padding: 0 5px; }
+        .pos-num { color: yellow; font-size: 24px; display: block; margin: 10px 0; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>The Pi Code</h1>
+    <p>Loading 100 Million Digits of Reality...</p>
+
+    <div id="progress-container">
+        <div id="progress-bar"></div>
+    </div>
+    <div id="status">Connecting to Universe... 0%</div>
+
+    <div class="search-box" id="search-box">
+        <p>Enter your Date of Birth (DDMMYY):</p>
+        <input type="number" id="birthInput" placeholder="e.g. 150847">
+        <br>
+        <button onclick="findBirthday()">Search My Code</button>
+        <div id="result"></div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,59 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Find Your DOB in Pi</title>
-  <style>
-    body { font-family: Arial; text-align: center; margin-top: 50px; }
-    input, button { padding: 10px; font-size: 16px; }
-    #result { margin-top: 20px; font-weight: bold; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Pi Universe Code | Accurate Chunk Search</title>
+<style>
+:root { --neon: #00ff00; --bg: #050505; }
+body { background: var(--bg); color: white; font-family: 'Courier New', monospace; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
+#bg-canvas { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.25; }
+.container { background: rgba(0,0,0,0.9); border:2px solid var(--neon); padding:40px 20px; border-radius:20px; text-align:center; width:90%; max-width:420px; box-shadow:0 0 30px rgba(0,255,0,0.3);} 
+h1 { color:var(--neon); letter-spacing:5px; text-shadow:0 0 15px var(--neon);} 
+input { background:#000; border:1px solid var(--neon); color:var(--neon); padding:15px; width:80%; font-size:1.4rem; text-align:center; border-radius:10px; }
+button { background:var(--neon); color:black; border:none; padding:15px; width:85%; border-radius:50px; cursor:pointer; font-weight:bold; }
+#result { margin-top:30px; min-height:120px; }
+.pos-value { color:yellow; font-size:2rem; }
+.loading { color:var(--neon); }
+</style>
 </head>
 <body>
-  <h2>🔍 Find Your DOB in Pi</h2>
-  <p>Enter DOB (ddmmyy) — zeros will be removed automatically</p>
-  <input type="text" id="dob" placeholder="e.g. 010203">
-  <button onclick="searchPi()">Search</button>
+<canvas id="bg-canvas"></canvas>
+<div class="container">
+<h1>THE PI CODE</h1>
+<input type="number" id="birthInput" placeholder="DDMMYYYY" />
+<br><br>
+<button onclick="processSearch()">FIND MY FREQUENCY</button>
+<div id="result"></div>
+</div>
+<script>
+// MATRIX BACKGROUND
+const canvas=document.getElementById('bg-canvas');
+const ctx=canvas.getContext('2d');
+canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+const letters="0123456789π"; const fontSize=16;
+const columns=canvas.width/fontSize;
+const drops=Array(Math.floor(columns)).fill(1);
+function drawMatrix(){ctx.fillStyle="rgba(0,0,0,0.05)";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle="#0F0";ctx.font=fontSize+"px monospace";for(let i=0;i<drops.length;i++){const text=letters[Math.floor(Math.random()*letters.length)];ctx.fillText(text,i*fontSize,drops[i]*fontSize);if(drops[i]*fontSize>canvas.height&&Math.random()>0.975)drops[i]=0;drops[i]++;}}
+setInterval(drawMatrix,50);
 
-  <div id="result"></div>
+// CHUNK SEARCH (ACCURATE)
+async function processSearch(){
+const raw=document.getElementById('birthInput').value;
+const result=document.getElementById('result');
+let query=raw.replace(/0/g,'');
 
-  <script>
-    async function searchPi() {
-      let dob = document.getElementById('dob').value.trim();
+if(query.length<3){ result.innerHTML="<p style='color:red'>Enter valid DOB</p>"; return; }
 
-      if (!/^\d{6}$/.test(dob)) {
-        document.getElementById('result').innerText = '❌ Enter valid 6-digit DOB';
-        return;
-      }
+result.innerHTML="<p class='loading'>🔍 Scanning digits...</p>";
 
-      // remove zeros
-      let query = dob.replace(/0/g, '');
+try{
+let chunkSize = 1000;
+let maxDigits = 1000000; // 1 million (safe realistic limit)
 
-      if (query.length === 0) {
-        document.getElementById('result').innerText = '❌ Invalid after removing zeros';
-        return;
-      }
+for(let start=0; start<maxDigits; start+=chunkSize){
+let res = await fetch(`https://api.pi.delivery/v1/pi?start=${start}&numberOfDigits=${chunkSize}`);
+let data = await res.json();
+let digits = data.content;
 
-      document.getElementById('result').innerText = '⏳ Searching...';
+let index = digits.indexOf(query);
 
-      try {
-        let res = await fetch(`https://api.pi.delivery/v1/pi?start=0&numberOfDigits=1000000`);
-        let data = await res.json();
+if(index !== -1){
+let pos = start + index;
+render(pos, query);
+return;
+}
 
-        let piDigits = data.content;
+// progress update
+if(start % 10000 === 0){
+result.innerHTML = `<p class='loading'>⏳ Scanned ${start.toLocaleString()} digits...</p>`;
+}
+}
 
-        let index = piDigits.indexOf(query);
+result.innerHTML = "<p>❌ Not found in first 1M digits</p>";
 
-        if (index !== -1) {
-          document.getElementById('result').innerText = `✅ Found at position: ${index}`;
-        } else {
-          document.getElementById('result').innerText = '❌ Not found in first 1M digits';
-        }
+}catch(e){
+result.innerHTML = "<p>⚠️ Error fetching data</p>";
+}
+}
 
-      } catch (err) {
-        document.getElementById('result').innerText = '⚠️ Error fetching Pi data';
-      }
-    }
-  </script>
+function render(pos,q){
+document.getElementById('result').innerHTML=`
+<div>
+<div>Decimal Coordinate Found:</div>
+<div class="pos-value">${pos.toLocaleString()}</div>
+<div>Frequency: ${q}</div>
+</div>`;
+}
+</script>
 </body>
 </html>
